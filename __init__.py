@@ -76,6 +76,14 @@ def pip_install_packages_in_virtual_environment(env_directory_path, packages):
         run_command(f'"{get_venv_pip_path(env_directory_path)}" install {package}')
 
 
+def pip_install_requirements_file_in_virtual_environment(env_directory_path: str, requirements_file_path: str):
+    if not os.path.exists(env_directory_path):
+        print("Invalid path")
+        raise Exception("Invalid path")
+    
+    run_command(f'"{get_venv_pip_path(env_directory_path)}" install -r {requirements_file_path}')
+
+
 def module_installed(module_name: str) -> bool:
     try:
         importlib.import_module(module_name)
