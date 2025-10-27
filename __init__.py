@@ -349,28 +349,43 @@ class GitignorePatternMatcher:
 
     
 import subprocess
-def invoke_python_file_using_subprocess(python_env_path: str, file_path: str, logfile_path: str = None) -> subprocess.Popen:
+def get_python_executable(python_env_path: str) -> str:
+    """Return the full path to the Python executable based on the environment path and OS."""
     if not os.path.exists(python_env_path):
-        print(f"invalid path: {python_env_path}")
+        raise FileNotFoundError(f"Invalid Python environment path: {python_env_path}")
+
+    my_os = platform.system()
+    if my_os == "Windows":
+        python_exe = os.path.join(python_env_path, "Scripts", "python.exe")
+    else:
+        python_exe = os.path.join(python_env_path, "bin", "python")
+
+    if not os.path.exists(python_exe):
+        raise FileNotFoundError(f"Python executable not found at: {python_exe}")
+
+    return python_exe
+
+
+def invoke_python_file_using_subprocess(python_env_path: str, file_path: str, logfile_path: str = None) -> subprocess.Popen:
+    """Run a Python file using a specific Python environment and optional logfile."""
+    python_exe = get_python_executable(python_env_path)
 
     if not os.path.exists(file_path):
-        print(f"invalid path: {file_path}")
+        raise FileNotFoundError(f"Invalid file path: {file_path}")
 
+    # Change working directory to the file's directory
     current_directory = str(pathlib.Path(file_path).parents[0].resolve()).replace("\\", "/")
-    os.chdir(current_directory) # Set active directory to the current directory
+    os.chdir(current_directory)
 
-    command = ""
-    my_os = platform.system()
+    # Build the command
     if logfile_path:
-        if my_os == "Windows":
-            command = f'powershell; &"{python_env_path}/Scripts/python" -u "{file_path}" > "{logfile_path}"'
-        else:
-            command = f'"{python_env_path}/bin/python" -u "{file_path}" > "{logfile_path}"'
+        command = f'"{python_exe}" -u "{file_path}" > "{logfile_path}"'
     else:
-        if my_os == "Windows":
-            command = f'powershell; &"{python_env_path}/Scripts/python" -u "{file_path}"'
-        else:
-            command = f'"{python_env_path}/bin/python" -u "{file_path}"'
+        command = f'"{python_exe}" -u "{file_path}"'
+
+    # Use PowerShell on Windows to ensure proper execution
+    if platform.system() == "Windows":
+        command = f"powershell; &{command}"
 
     new_process = subprocess.Popen(command, shell=True)
     return new_process
