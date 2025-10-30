@@ -7,16 +7,14 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[2]))
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[4]))
+sys.path.append(str(pathlib.Path(__file__).resolve().parents[5]))
 
 from vicmil_pip.lib.pyUtil import *
 
 if __name__ == "__main__":
-    start_file_path = get_directory_path(__file__) + "/app.py"
+    start_file_path = get_directory_path(__file__) + "/fts_search.py"
     venv_path = get_directory_path(__file__) + "/venv"
     requirements_file_path = get_directory_path(__file__) + "/requirements.txt"
-    url = "http://127.0.0.1:5000"
-
-    open_webbrowser(url)
 
     if not os.path.exists(venv_path):
         python_virtual_environment(venv_path)
